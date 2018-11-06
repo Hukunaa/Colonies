@@ -1,0 +1,18 @@
+#include <CUSTOM_CLASS.h>
+
+CUSTOM_CLASS::CUSTOM_CLASS()
+{
+}
+
+CUSTOM_CLASS::~CUSTOM_CLASS()
+{
+}
+
+CUSTOM_CLASS::CUSTOM_CLASS(const CUSTOM_CLASS& other)
+{
+}
+
+CUSTOM_CLASS& CUSTOM_CLASS::operator=(const CUSTOM_CLASS& other)
+{
+    return *this;
+}
