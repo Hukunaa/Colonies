@@ -50,13 +50,11 @@ void GameLoop::CreateDot(Dot& parent)
 
   dot_node.m_rect.x = parent.m_rect.x + ((rand() % 3) - 1) * 4;
   dot_node.m_rect.y = parent.m_rect.y + ((rand() % 3) - 1) * 4;
-    /*case 1: dot_node.m_rect.x = parent.m_rect.x;
-            dot_node.m_rect.y = parent.m_rect.y + 4;
-            break;
-  }*/
+
   for(unsigned int n = 0; n < Dots_array.size(); ++n)
   {
-    if(Dots_array[n].is_alive == true && dot_node.m_rect.x == Dots_array[n].m_rect.x && dot_node.m_rect.y == Dots_array[n].m_rect.y)
+    if(Dots_array[n].is_alive == true && dot_node.m_rect.x == Dots_array[n].m_rect.x 
+									  && dot_node.m_rect.y == Dots_array[n].m_rect.y)
     {
       return;
     }
@@ -70,14 +68,14 @@ void GameLoop::CreateDot(Dot& parent)
   }
 
   int d;
-  while(Dots_array[d].is_alive == true)
+  while(Dots_array[d].is_alive == true && (unsigned int)d < Dots_array.size())
   {
-    ++d;
+  	++d;
   }
-
   if(Dots_array[d].is_alive == false)
   {
     Dots_array[d] = dot_node;
+    return;
   }
   else
   {
@@ -87,71 +85,59 @@ void GameLoop::CreateDot(Dot& parent)
 
 void GameLoop::UpdateDot()
 {
-  for(unsigned int n = 0; n < Dots_array.size(); ++n)
-  {
-    if(Dots_array[n].is_alive == true)
-    {
-      ++Dots_array[n].life;
+	if(last_frame <= current_time)
+	{
+	  for(unsigned int n = 0; n < Dots_array.size(); ++n)
+	  {
+		if(Dots_array[n].is_alive == true)
+		{
+		  ++Dots_array[n].life;
 
-      if(Dots_array[n].life > 25)
-      Dots_array[n].is_alive = false;
+		  if(Dots_array[n].life > 25 || Dots_array[n].is_sick == true)
+		  	Dots_array[n].is_alive = false;
 
-      if(rand() % 100 < 50 && Dots_array[n].life > 20)
-      {
-
-        CreateDot(Dots_array[n]);
-      }
-
-      /*if(Dots_array[n].is_sick == true)
-      {
-        if(rand() % 100 < 50)
-        {
-          Dots_array[n].is_alive = false;
-        }
-      }*/
-    }
-    else
-    {
-      --Dots_array[n].life;
-    }
-  }
+		  if(rand() % 100 < 20 && Dots_array[n].life > 20)
+		  {
+		    CreateDot(Dots_array[n]);
+		  }
+		  std::cout << n << " Debugging\n";
+		}
+	  }
+	  last_frame = current_time + 100;
+  	}
 }
 
 int GameLoop::Loop()
 {
-  if (m_device.GetState() == DeviceState::ERROR)
-      return EXIT_FAILURE;
+	if (m_device.GetState() == DeviceState::ERROR)
+	  return EXIT_FAILURE;
 
-  // Example for loading Image from media folder
-  Texture testTexture{m_renderer, "./media/dot_blue.png"};
-  testTexture.Set(1, 1, m_window.GetWidth() / 2 - 45,
-                          m_window.GetHeight() / 2 - 35);
 
-  SetupDots();
-  while (m_state != GameState::QUITTING)
-  {
-    m_renderer.Clear();
+	Texture t_blueDot{m_renderer, "./media/dot_blue.png"};
+	t_blueDot.Set(1, 1, m_window.GetWidth() / 2 - 45,
+		              m_window.GetHeight() / 2 - 35);
+	
+	SetupDots();
+	last_frame = SDL_GetTicks();
+	while (m_state != GameState::QUITTING)
+	{
+		current_time = SDL_GetTicks();
+    	//std::cout << "Time : " << current_time << '\n';
+		m_renderer.Clear();
+		HandleEvents();
+		UpdateDot();
+		
+		for(unsigned int j = 0; j < Dots_array.size(); ++j)
+		{
+			if(Dots_array[j].is_alive == true)
+				SDL_RenderCopy(m_renderer.GetRenderer(),t_blueDot.GetTexture(), nullptr, &Dots_array[j].m_rect);
+		}
 
-    HandleEvents();
-    UpdateDot();
-    //std::cout << "Dots size: " << Dots_array.size() << '\n';
-    for(unsigned int j = 0; j < Dots_array.size(); ++j)
-    {
-      if(Dots_array[j].is_alive == true){
-
-        SDL_RenderCopy(m_renderer.GetRenderer(),
-        testTexture.GetTexture(),
-        nullptr,
-        &Dots_array[j].m_rect);
-      }
-    }
-
-    m_renderer.Present();
-  }
-
-  m_device.SetState(DeviceState::QUITTING);
-
-  return EXIT_SUCCESS;
+		m_renderer.Present();
+	}
+	
+	m_device.SetState(DeviceState::QUITTING);
+	return EXIT_SUCCESS;
 }
 
 void GameLoop::HandleEvents()
