@@ -2,6 +2,8 @@
 #define __DOT__
 
 #include <Texture.h>
+#include <iostream>
+
 
 class Dot
 {
@@ -11,6 +13,7 @@ public:
 
   SDL_Rect m_rect;
 
+  //static int nb_cell;
   int life;
   int m_speed;
   bool is_alive;
@@ -18,15 +21,19 @@ public:
 
   Dot()
   {
+    std::cout << "JE SUIS VIVANT MDR\n";
     m_rect = {1,1,4,4};
     is_alive = false;
     is_sick = false;
     life = 0;
+    //nb_cell++;
   };
 
-  ~Dot() {};
+  ~Dot()
+  {
+    std::cout << "JE MEURS SALE FDP ! \n";
+    //nb_cell--;
+  };
 
 };
-
-
 #endif
