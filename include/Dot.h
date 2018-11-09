@@ -22,7 +22,7 @@ public:
   Dot()
   {
     std::cout << "JE SUIS VIVANT MDR\n";
-    m_rect = {1,1,4,4};
+    m_rect = {640,340,4,4};
     is_alive = false;
     is_sick = false;
     life = 0;

@@ -24,11 +24,9 @@ void GameLoop::SetupDots()
   std::cin >> dots_nb;
   std::cout << "You've choosen " << dots_nb << " Dots" << '\n';
 
-  for(int i = 0; i < 10000; ++i)
+  for(int i = 0; i < 100000; ++i)
   {
     Dot* dot_node = new Dot;
-    //dot_node.m_rect.x = m_window.GetWidth() / 2;
-    //dot_node.m_rect.y = m_window.GetHeight() / 2;
 
     if(rand() % 100 < 10)
     {
@@ -39,76 +37,69 @@ void GameLoop::SetupDots()
   }
   for(int j = 0 ; j < dots_nb; ++j)
   {
+    //Dots_array[j]->m_rect.x = m_window.GetWidth() / 2;
+    //Dots_array[j]->m_rect.y = m_window.GetHeight() / 2;
     Dots_array[j]->is_alive = true;
 
   }
 }
 
-void GameLoop::CreateDot(Dot* parent)
+void GameLoop::CreateDot(int it)
 {
-  Dot* dot_node;
-  dot_node = nullptr;
-  int d;
+  int d = 0;
+
   while(Dots_array[d]->is_alive == true)
   {
   	++d;
   }
   if(Dots_array[d]->is_alive == false)
   {
-    dot_node = Dots_array[d];
-    return;
-  }
-
-  if(dot_node != nullptr)
-  {
-    dot_node->is_alive = true;
-
-    dot_node->m_rect.x = parent->m_rect.x + ((rand() % 3) - 1) * 4;
-    dot_node->m_rect.y = parent->m_rect.y + ((rand() % 3) - 1) * 4;
+    std::cout << "Found node !\n";
+    Dots_array[d]->is_alive = true;
+    std::cout << "Parent pos: " << Dots_array[it]->m_rect.x << " | " << Dots_array[it]->m_rect.y << "\n\n";
+    Dots_array[d]->m_rect.x = Dots_array[it]->m_rect.x  + ((rand() % 4) - 1) * 4;
+    Dots_array[d]->m_rect.y = Dots_array[it]->m_rect.y  + ((rand() % 4) - 1) * 4;
 
     for(unsigned int n = 0;  Dots_array[n]->is_alive == true; ++n)
     {
-      if(Dots_array[n]->is_alive == true && dot_node->m_rect.x == Dots_array[n]->m_rect.x
-        && dot_node->m_rect.y == Dots_array[n]->m_rect.y)
-        {
-          return;
-        }
-      }
-      if(parent->is_sick == true)
+      if(Dots_array[n]->is_alive == true && Dots_array[d]->m_rect.x == Dots_array[n]->m_rect.x
+                                         && Dots_array[d]->m_rect.y == Dots_array[n]->m_rect.y)
       {
-        if(rand() % 10 < 5)
-        {
-          dot_node->is_sick = true;
-        }
+        std::cout << "Can't Create the Node !\n";
+        return;
       }
+    }
+    if(Dots_array[it]->is_sick == true)
+    {
+      if(rand() % 10 < 5)
+      {
+        Dots_array[d]->is_sick = true;
+      }
+    }
   }
-
 }
 
 void GameLoop::UpdateDot()
 {
-	if(last_frame <= current_time)
-	{
 	  for(unsigned int n = 0; Dots_array[n]->is_alive == true; ++n)
 	  {
-  		//if(Dots_array[n].is_alive == true)
-  		//{
   		  ++Dots_array[n]->life;
+        if(last_frame <= current_time)
+        {
+          std::partition(Dots_array.begin(), Dots_array.end(), [](Dot* h) {return h->is_alive;});
+          if(rand() % 100 < 60)
+          {
+              CreateDot(n);
+          }
 
-  		  if(Dots_array[n]->life > 25 || Dots_array[n]->is_sick == true)
-  		  	Dots_array[n]->is_alive = false;
-
-  		  if(rand() % 100 < 20 && Dots_array[n]->life > 20)
-  		  {
-  		    CreateDot(Dots_array[n]);
-  		  }
-  		  std::cout << " Debugging " << n << '\n';
-  		//}q
+          if(Dots_array[n]->life > 20 && rand() % 100 < 20)
+          {
+            std::cout << " Dot will die : " << n << '\n';
+            Dots_array[n]->is_alive = false;
+          }
+          last_frame = current_time + 50;
+        }
 	  }
-	  last_frame = current_time + 100;
-	}
-  std::partition(Dots_array.begin(), Dots_array.end(), [](Dot* d) {return d->is_alive;});
-
 }
 
 int GameLoop::Loop()
@@ -123,6 +114,7 @@ int GameLoop::Loop()
 
 	SetupDots();
 	last_frame = SDL_GetTicks();
+
 	while (m_state != GameState::QUITTING)
 	{
 		current_time = SDL_GetTicks();
@@ -133,7 +125,7 @@ int GameLoop::Loop()
 
 		for(unsigned int j = 0; Dots_array[j]->is_alive == true; ++j)
 		{
-			//if(Dots_array[j].is_alive == true)
+			//if(Dots_array[j]->is_alive == true)
 				SDL_RenderCopy(m_renderer.GetRenderer(),t_blueDot.GetTexture(), nullptr, &Dots_array[j]->m_rect);
 		}
 

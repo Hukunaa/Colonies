@@ -28,12 +28,12 @@ public:
     GameState m_state;
     std::vector<Dot*> Dots_array;
 
-	unsigned int current_time;
-	unsigned int last_frame;
+    unsigned int current_time;
+    unsigned int last_frame;
 
     int Loop();
     void SetupDots();
-    void CreateDot(Dot* parent);
+    void CreateDot(int it);
     void UpdateDot();
     void HandleEvents();
 };
